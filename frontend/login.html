@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | SEA-1 MCQ Battle</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-darkblue-900 text-slate-100 min-h-screen bg-mesh flex flex-col">
+
+    <!-- Navbar Container -->
+    <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
+
+    <!-- Content Box -->
+    <main class="flex-grow flex items-center justify-center px-4 py-12">
+        
+        <div class="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-fade-in">
+            
+            <div class="text-center space-y-2">
+                <div class="inline-flex h-12 w-12 rounded-2xl bg-blue-600/10 text-blue-400 border border-blue-500/20 items-center justify-center mb-2">
+                    <i class="fas fa-lock text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold font-display">Welcome Back</h2>
+                <p class="text-xs text-slate-400">Sign in to resume your daily streak and earn XP.</p>
+            </div>
+
+            <!-- Error Notification Panel -->
+            <div id="error-box" class="hidden p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="error-message"></span>
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i class="fas fa-user text-sm"></i>
+                        </span>
+                        <input type="text" id="username" required minlength="3" placeholder="Enter username" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i class="fas fa-key text-sm"></i>
+                        </span>
+                        <input type="password" id="password" required minlength="6" placeholder="Enter password" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-sm">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Sign In</span>
+                    <i class="fas fa-sign-in-alt text-sm"></i>
+                </button>
+            </form>
+
+            <div class="text-center pt-2 border-t border-white/5">
+                <p class="text-xs text-slate-400">
+                    Don't have an account? 
+                    <a href="register.html" class="text-blue-400 font-semibold hover:underline">Register here</a>
+                </p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="glass-panel border-t border-white/5 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="text-[10px] text-gray-500">&copy; 2026 SEA-1 MCQ Battle Platform. Dark theme and security enabled.</span>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        // Redirect to dashboard if session exists
+        redirectIfLoggedIn();
+
+        const form = document.getElementById('login-form');
+        const submitBtn = document.getElementById('btn-submit');
+        const errorBox = document.getElementById('error-box');
+        const errorMsg = document.getElementById('error-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorBox.classList.add('hidden');
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Simple validation
+            if (!username || !password) {
+                showError("Please enter all required fields.");
+                return;
+            }
+
+            // UI feedback
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Authenticating...`;
+
+            const res = await fetchAPI('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<span>Sign In</span><i class="fas fa-sign-in-alt text-sm"></i>`;
+
+            if (res.error) {
+                showError(res.msg);
+            } else {
+                // Save tokens
+                Auth.saveToken(res.access_token);
+                Auth.saveUser(res.user);
+                
+                // Redirect
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        function showError(message) {
+            errorMsg.innerText = message;
+            errorBox.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

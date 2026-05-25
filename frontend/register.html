@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | SEA-1 MCQ Battle</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-darkblue-900 text-slate-100 min-h-screen bg-mesh flex flex-col">
+
+    <!-- Navbar Container -->
+    <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
+
+    <!-- Content Box -->
+    <main class="flex-grow flex items-center justify-center px-4 py-12">
+        
+        <div class="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-fade-in">
+            
+            <div class="text-center space-y-2">
+                <div class="inline-flex h-12 w-12 rounded-2xl bg-blue-600/10 text-blue-400 border border-blue-500/20 items-center justify-center mb-2">
+                    <i class="fas fa-user-plus text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold font-display">Create Account</h2>
+                <p class="text-xs text-slate-400">Join the competitive MCQ practice community today.</p>
+            </div>
+
+            <!-- Notification Alerts -->
+            <div id="error-box" class="hidden p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="error-message"></span>
+            </div>
+
+            <div id="success-box" class="hidden p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 flex items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                <span>Registration successful! Redirecting to login...</span>
+            </div>
+
+            <!-- Form -->
+            <form id="register-form" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i class="fas fa-user text-sm"></i>
+                        </span>
+                        <input type="text" id="username" required minlength="3" maxlength="30" placeholder="Min 3 characters" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i class="fas fa-key text-sm"></i>
+                        </span>
+                        <input type="password" id="password" required minlength="6" placeholder="Min 6 characters" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="confirm-password" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Confirm Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                            <i class="fas fa-check-double text-sm"></i>
+                        </span>
+                        <input type="password" id="confirm-password" required minlength="6" placeholder="Re-enter password" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl glass-input text-sm">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/20 transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 cursor-pointer">
+                    <span>Register Account</span>
+                    <i class="fas fa-arrow-right text-sm"></i>
+                </button>
+            </form>
+
+            <div class="text-center pt-2 border-t border-white/5">
+                <p class="text-xs text-slate-400">
+                    Already have an account? 
+                    <a href="login.html" class="text-blue-400 font-semibold hover:underline">Login here</a>
+                </p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="glass-panel border-t border-white/5 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="text-[10px] text-gray-500">&copy; 2026 SEA-1 MCQ Battle Platform. Premium dark aesthetics.</span>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        redirectIfLoggedIn();
+
+        const form = document.getElementById('register-form');
+        const submitBtn = document.getElementById('btn-submit');
+        const errorBox = document.getElementById('error-box');
+        const errorMsg = document.getElementById('error-message');
+        const successBox = document.getElementById('success-box');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorBox.classList.add('hidden');
+            successBox.classList.add('hidden');
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            // Basic validation checks
+            if (password !== confirmPassword) {
+                showError("Passwords do not match.");
+                return;
+            }
+
+            if (username.length < 3) {
+                showError("Username must be at least 3 characters long.");
+                return;
+            }
+
+            // Spinner loader
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Creating account...`;
+
+            const res = await fetchAPI('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<span>Register Account</span><i class="fas fa-arrow-right text-sm"></i>`;
+
+            if (res.error) {
+                showError(res.msg);
+            } else {
+                successBox.classList.remove('hidden');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        });
+
+        function showError(message) {
+            errorMsg.innerText = message;
+            errorBox.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

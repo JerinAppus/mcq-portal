@@ -1,0 +1,198 @@
+/* Global Styling Overrides and Custom Classes for SEA-1 MCQ Battle Platform */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --font-primary: 'Inter', sans-serif;
+    --font-display: 'Outfit', sans-serif;
+}
+
+body {
+    font-family: var(--font-primary);
+    background-color: #0b0f19;
+    color: #e2e8f0;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+    background: rgba(30, 41, 59, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    background: rgba(30, 41, 59, 0.6);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+.glass-input {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    transition: all 0.2s ease-in-out;
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    background: rgba(15, 23, 42, 0.8);
+}
+
+/* Custom Backgrounds & Gradients */
+.bg-mesh {
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-15px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+}
+
+@keyframes textShine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.glow-active {
+    animation: glowPulse 2s infinite ease-in-out;
+}
+
+.text-gradient-shine {
+    background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShine 4s linear infinite;
+}
+
+/* Rank Badges Styles */
+.badge-platinum {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
+    box-shadow: 0 0 12px rgba(226, 232, 240, 0.3);
+}
+
+.badge-gold {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+}
+
+.badge-silver {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%);
+    box-shadow: 0 0 12px rgba(148, 163, 184, 0.3);
+}
+
+.badge-bronze {
+    background: linear-gradient(135deg, #b45309 0%, #78350f 50%, #451a03 100%);
+    box-shadow: 0 0 12px rgba(180, 83, 9 0.2);
+}
+
+/* Podiums for Top 3 Leaders */
+.podium-1 {
+    border: 2px solid rgba(251, 191, 36, 0.5);
+    background: linear-gradient(180deg, rgba(251, 191, 36, 0.15) 0%, rgba(30, 41, 59, 0.4) 100%);
+}
+
+.podium-2 {
+    border: 2px solid rgba(148, 163, 184, 0.5);
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.12) 0%, rgba(30, 41, 59, 0.4) 100%);
+}
+
+.podium-3 {
+    border: 2px solid rgba(180, 83, 9, 0.5);
+    background: linear-gradient(180deg, rgba(180, 83, 9, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%);
+}
+
+/* Custom Scrollbar for sleek UI */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Option Buttons inside Quiz */
+.quiz-option {
+    background: rgba(30, 41, 59, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quiz-option:hover:not(.selected):not(.correct):not(.incorrect) {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: translateX(4px);
+}
+
+.quiz-option.selected {
+    background: rgba(59, 130, 246, 0.18);
+    border-color: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.quiz-option.correct {
+    background: rgba(16, 185, 129, 0.18) !important;
+    border-color: #10b981 !important;
+    color: #34d399 !important;
+}
+
+.quiz-option.incorrect {
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: #ef4444 !important;
+    color: #f87171 !important;
+}
+
+/* Glowing timer circle */
+.timer-pulse {
+    animation: glowPulse 1s infinite alternate;
+}

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Arena | SEA-1 MCQ Battle</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-darkblue-900 text-slate-100 min-h-screen bg-mesh flex flex-col">
+
+    <!-- Header Navbar -->
+    <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
+
+    <!-- Main quiz content -->
+    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex flex-col justify-center">
+        
+        <!-- Header HUD -->
+        <div class="glass-panel rounded-2xl p-4 sm:p-6 border border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div class="space-y-1 text-center sm:text-left">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20" id="quiz-category">General</span>
+                <h1 class="text-xl font-extrabold tracking-tight font-display">BATTLE ARENA ACTIVE</h1>
+            </div>
+            
+            <!-- Timer Clock -->
+            <div class="flex items-center gap-3 bg-blue-500/5 border border-blue-500/20 px-5 py-2.5 rounded-2xl w-fit timer-pulse" id="timer-box">
+                <i class="far fa-clock text-xl text-blue-400" id="timer-icon"></i>
+                <div class="text-right">
+                    <span class="text-[9px] text-gray-400 block uppercase tracking-wider font-semibold">Remaining Time</span>
+                    <span id="countdown-clock" class="text-xl font-mono font-extrabold text-blue-400">05:00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Left Side: HUD Nav Breadcrumbs (1 Col) -->
+            <div class="lg:col-span-1 glass-panel rounded-2xl p-5 border border-white/5 space-y-5 h-fit">
+                <div class="border-b border-white/5 pb-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Question Map</h3>
+                </div>
+                
+                <!-- Number bubbles grid -->
+                <div class="grid grid-cols-5 lg:grid-cols-3 gap-2.5" id="breadcrumb-grid">
+                    <!-- Javascript generated buttons -->
+                </div>
+
+                <div class="pt-3 border-t border-white/5 space-y-2">
+                    <div class="flex justify-between text-xs text-gray-400">
+                        <span>Quiz Progress</span>
+                        <span id="progress-text">0 / 0 Answered</span>
+                    </div>
+                    <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar-fill" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Questions Arena (3 Cols) -->
+            <div class="lg:col-span-3 flex flex-col justify-between glass-panel rounded-2xl p-6 sm:p-8 border border-white/5 min-h-[400px]">
+                
+                <!-- Main question body -->
+                <div class="space-y-6 flex-grow">
+                    <!-- Q Number and difficulty -->
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span>QUESTION <span id="q-current-number" class="text-blue-400 font-bold">1</span> OF <span id="q-total-number">10</span></span>
+                        <span class="px-2 py-0.5 rounded-full font-semibold border border-white/10" id="q-difficulty">Medium</span>
+                    </div>
+
+                    <!-- Question Prompt -->
+                    <h2 class="text-lg sm:text-xl font-bold leading-relaxed text-slate-100" id="question-text">
+                        Loading question...
+                    </h2>
+
+                    <!-- Question Option Choices -->
+                    <div class="grid grid-cols-1 gap-3.5 pt-2" id="options-container">
+                        <!-- Dynamic Choices -->
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center justify-between border-t border-white/5 pt-6 mt-8">
+                    <button id="btn-prev" class="px-4 py-2.5 rounded-xl font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed">
+                        <i class="fas fa-arrow-left text-xs"></i> Previous
+                    </button>
+
+                    <button id="btn-next" class="px-5 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer">
+                        Next <i class="fas fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Overlay lock spinner for submission state -->
+    <div id="submit-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex flex-col items-center justify-center gap-4 hidden">
+        <div class="h-16 w-16 rounded-full border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+        <div class="text-center space-y-1">
+            <h3 class="text-lg font-bold text-slate-100">GRADING ANSWERS SECURELY</h3>
+            <p class="text-xs text-gray-400">Awarding XP points, updating streaks and badges...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-white/5 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="text-[10px] text-gray-500">&copy; 2026 SEA-1 MCQ Platform. Anti-client-side injection system active.</span>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        protectPage();
+
+        // State Manager
+        let questions = [];
+        let currentIndex = 0;
+        let answers = {}; // Maps question ID to chosen option ('A', 'B', etc.)
+        let timeLeft = 300; // 5 minutes total
+        let timerInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load questions from local storage cache
+            const cached = localStorage.getItem('current_quiz_questions');
+            if (!cached) {
+                alert("No active quiz session found. Please configure a quiz on your Dashboard.");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            questions = JSON.parse(cached);
+            if (questions.length === 0) {
+                alert("Question pool is empty. Please select a different category.");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // Init HUD details
+            document.getElementById('q-total-number').innerText = questions.length;
+            document.getElementById('quiz-category').innerText = questions[0].category || "General";
+
+            // Start Timer
+            startCountdown();
+
+            // Render breadcrumbs
+            initBreadcrumbs();
+
+            // Load first question
+            showQuestion(0);
+
+            // Hook listeners
+            document.getElementById('btn-prev').addEventListener('click', prevQuestion);
+            document.getElementById('btn-next').addEventListener('click', nextQuestionOrSubmit);
+        });
+
+        function startCountdown() {
+            const clockEl = document.getElementById('countdown-clock');
+            const timerBox = document.getElementById('timer-box');
+            const timerIcon = document.getElementById('timer-icon');
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                
+                // Format
+                const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const secs = (timeLeft % 60).toString().padStart(2, '0');
+                clockEl.innerText = `${mins}:${secs}`;
+
+                // Pulsing red danger warnings
+                if (timeLeft <= 30) {
+                    timerBox.className = "flex items-center gap-3 bg-red-500/10 border border-red-500/30 px-5 py-2.5 rounded-2xl w-fit timer-pulse text-red-400";
+                    timerIcon.className = "far fa-clock text-xl text-red-400 animate-bounce";
+                    clockEl.className = "text-xl font-mono font-extrabold text-red-400";
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    autoSubmitQuiz();
+                }
+            }, 1000);
+        }
+
+        function initBreadcrumbs() {
+            const grid = document.getElementById('breadcrumb-grid');
+            grid.innerHTML = '';
+
+            questions.forEach((_, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `crumb-btn-${idx}`;
+                btn.type = 'button';
+                btn.className = 'py-2 rounded-xl text-xs font-bold border border-white/5 bg-slate-900/40 text-gray-400 transition-all hover:bg-white/5 cursor-pointer';
+                btn.innerText = idx + 1;
+                btn.addEventListener('click', () => {
+                    saveCurrentDraft();
+                    showQuestion(idx);
+                });
+                grid.appendChild(btn);
+            });
+            updateBreadcrumbStyles();
+        }
+
+        function updateBreadcrumbStyles() {
+            questions.forEach((q, idx) => {
+                const btn = document.getElementById(`crumb-btn-${idx}`);
+                if (!btn) return;
+
+                const hasAnswer = !!answers[q.id];
+
+                // Base style reset
+                btn.className = 'py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center';
+
+                if (idx === currentIndex) {
+                    // Active question
+                    btn.classList.add('bg-blue-600/25', 'border-blue-500', 'text-blue-300', 'glow-active');
+                } else if (hasAnswer) {
+                    // Visited and answered
+                    btn.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
+                } else {
+                    // Unanswered
+                    btn.classList.add('bg-slate-900/40', 'border-white/5', 'text-gray-400', 'hover:bg-white/5');
+                }
+            });
+
+            // Update Progress Bar
+            const total = questions.length;
+            const answeredCount = Object.keys(answers).length;
+            document.getElementById('progress-text').innerText = `${answeredCount} / ${total} Answered`;
+            
+            const pct = (answeredCount / total) * 100;
+            document.getElementById('progress-bar-fill').style.width = `${pct}%`;
+        }
+
+        function showQuestion(index) {
+            currentIndex = index;
+            const q = questions[currentIndex];
+
+            // Update HUD numbering
+            document.getElementById('q-current-number').innerText = currentIndex + 1;
+            document.getElementById('q-difficulty').innerText = q.difficulty || "Medium";
+            document.getElementById('q-difficulty').className = `px-2 py-0.5 rounded-full font-semibold border ${getDifficultyBorder(q.difficulty)}`;
+
+            // Question content
+            document.getElementById('question-text').innerText = q.question;
+
+            // Options container
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const options = [
+                { label: 'A', text: q.option_a },
+                { label: 'B', text: q.option_b },
+                { label: 'C', text: q.option_c },
+                { label: 'D', text: q.option_d }
+            ];
+
+            options.forEach(opt => {
+                const div = document.createElement('div');
+                div.id = `opt-card-${opt.label}`;
+                div.className = 'quiz-option rounded-xl p-4 flex items-center gap-4 cursor-pointer';
+                
+                // Active highlighting check
+                const isSelected = (answers[q.id] === opt.label);
+                if (isSelected) {
+                    div.classList.add('selected');
+                }
+
+                div.innerHTML = `
+                    <div class="h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs ring-1 ring-white/10 select-letter ${isSelected ? 'bg-blue-600 text-white font-bold' : 'bg-slate-900 text-gray-400'}">
+                        ${opt.label}
+                    </div>
+                    <span class="text-sm font-medium">${opt.text}</span>
+                `;
+
+                div.addEventListener('click', () => selectOption(opt.label));
+                container.appendChild(div);
+            });
+
+            // Navigation Button controls
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+
+            prevBtn.disabled = (currentIndex === 0);
+
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerHTML = `<span>Submit Quiz</span> <i class="fas fa-check-circle text-xs text-emerald-400"></i>`;
+                nextBtn.className = "px-6 py-2.5 rounded-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 cursor-pointer";
+            } else {
+                nextBtn.innerHTML = `Next <i class="fas fa-arrow-right text-xs"></i>`;
+                nextBtn.className = "px-5 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2 cursor-pointer";
+            }
+
+            updateBreadcrumbStyles();
+        }
+
+        function getDifficultyBorder(diff) {
+            const d = (diff || '').toLowerCase();
+            if (d === 'easy') return 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5';
+            if (d === 'hard') return 'border-red-500/20 text-red-400 bg-red-500/5';
+            return 'border-blue-500/20 text-blue-400 bg-blue-500/5';
+        }
+
+        function selectOption(label) {
+            const q = questions[currentIndex];
+            
+            // Toggle or set selection
+            answers[q.id] = label;
+
+            // Redraw options UI
+            ['A', 'B', 'C', 'D'].forEach(letter => {
+                const el = document.getElementById(`opt-card-${letter}`);
+                const circle = el.querySelector('.select-letter');
+                if (letter === label) {
+                    el.classList.add('selected');
+                    circle.className = 'h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs ring-1 ring-white/10 select-letter bg-blue-600 text-white';
+                } else {
+                    el.classList.remove('selected');
+                    circle.className = 'h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs ring-1 ring-white/10 select-letter bg-slate-900 text-gray-400';
+                }
+            });
+
+            updateBreadcrumbStyles();
+        }
+
+        function saveCurrentDraft() {
+            // Choice already saved in global 'answers' object, which is persistent across session
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                saveCurrentDraft();
+                showQuestion(currentIndex - 1);
+            }
+        }
+
+        function nextQuestionOrSubmit() {
+            saveCurrentDraft();
+            if (currentIndex < questions.length - 1) {
+                showQuestion(currentIndex + 1);
+            } else {
+                confirmAndSubmitQuiz();
+            }
+        }
+
+        function confirmAndSubmitQuiz() {
+            const total = questions.length;
+            const answeredCount = Object.keys(answers).length;
+
+            if (answeredCount < total) {
+                const proceed = confirm(`You have only answered ${answeredCount} out of ${total} questions. Are you sure you want to submit?`);
+                if (!proceed) return;
+            } else {
+                const proceed = confirm("Verify all responses. Ready to submit this attempt?");
+                if (!proceed) return;
+            }
+
+            executeSubmit();
+        }
+
+        function autoSubmitQuiz() {
+            alert("⏰ Time is up! Grading your quiz automatically.");
+            executeSubmit();
+        }
+
+        async function executeSubmit() {
+            clearInterval(timerInterval);
+            
+            // Show lock overlay
+            document.getElementById('submit-overlay').classList.remove('hidden');
+
+            const payload = {
+                answers: answers
+            };
+
+            const res = await fetchAPI('/quiz/submit', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            // Hide overlay
+            document.getElementById('submit-overlay').classList.add('hidden');
+
+            if (res.error) {
+                alert(`Submit failed: ${res.msg}`);
+                window.location.href = 'dashboard.html';
+            } else {
+                // Clear active question pool
+                localStorage.removeItem('current_quiz_questions');
+
+                // Cache results for results page
+                localStorage.setItem('last_quiz_results', JSON.stringify(res));
+
+                // Take to results dashboard
+                window.location.href = 'results.html';
+            }
+        }
+    </script>
+</body>
+</html>

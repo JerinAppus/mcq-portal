@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | SEA-1 MCQ Battle</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-darkblue-900 text-slate-100 min-h-screen bg-mesh flex flex-col">
+
+    <!-- Header Navbar -->
+    <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
+
+    <!-- Main Profile Container -->
+    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8 animate-fade-in">
+        
+        <!-- Header Banner Section -->
+        <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-white/5 relative overflow-hidden flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
+            <div class="absolute -top-10 -right-10 h-40 w-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+
+            <!-- Avatar -->
+            <div id="profile-avatar" class="h-24 w-24 rounded-3xl bg-slate-800 flex items-center justify-center font-extrabold text-white text-3xl shadow-xl ring-4 ring-white/5">
+                U
+            </div>
+
+            <!-- User details -->
+            <div class="space-y-3 text-center sm:text-left relative z-10">
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white/5 border border-white/10" id="profile-badge-title">Bronze Badge</span>
+                <h1 class="text-3xl font-extrabold tracking-tight font-display text-slate-100" id="profile-username">Loading...</h1>
+                <p class="text-xs text-slate-400 flex items-center justify-center sm:justify-start gap-2">
+                    <i class="far fa-calendar-alt"></i> Joined Battle Arena on <span id="profile-joined">-</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Metrics Cards Split Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Left Side: Basic account progress info (1 Col) -->
+            <div class="md:col-span-1 glass-panel rounded-2xl p-6 border border-white/5 space-y-6 h-fit">
+                <div class="border-b border-white/5 pb-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Account Metrics</h3>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">Practice Streak</span>
+                        <span class="text-lg font-bold text-orange-400 flex items-center gap-2">
+                            🔥 <span id="profile-streak-days">0 Days</span>
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">Total Score</span>
+                        <span class="text-lg font-bold text-blue-400 flex items-center gap-2">
+                            <i class="fas fa-star"></i> <span id="profile-xp-count">0 XP</span>
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="text-xs text-slate-400 block mb-1">User Ranking Badge</span>
+                        <span class="text-lg font-bold text-purple-400 flex items-center gap-2">
+                            <i class="fas fa-crown"></i> <span id="profile-badge-label">Bronze</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Performance stats history (2 Cols) -->
+            <div class="md:col-span-2 glass-panel rounded-2xl p-6 sm:p-8 border border-white/5 space-y-6">
+                <div class="border-b border-white/5 pb-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Performance aggregates</h3>
+                </div>
+
+                <!-- Stats details row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    
+                    <div class="p-4 bg-slate-900/30 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                            <i class="fas fa-clipboard-check text-indigo-400"></i> Quizzes Solved
+                        </div>
+                        <span class="text-2xl font-extrabold text-slate-100 font-display block" id="profile-quizzes">0</span>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/30 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                            <i class="fas fa-bullseye text-emerald-400"></i> Overall Accuracy
+                        </div>
+                        <span class="text-2xl font-extrabold text-slate-100 font-display block" id="profile-win-ratio">0.0%</span>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/30 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                            <i class="fas fa-trophy text-yellow-400"></i> Highest Score
+                        </div>
+                        <span class="text-2xl font-extrabold text-slate-100 font-display block" id="profile-highest-score">0 / 10</span>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/30 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-semibold uppercase tracking-wider">
+                            <i class="fas fa-calculator text-blue-400"></i> Average Score
+                        </div>
+                        <span class="text-2xl font-extrabold text-slate-100 font-display block" id="profile-avg-score">0.0</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-white/5 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="text-xs text-gray-500">&copy; 2026 SEA-1 MCQ Platform. Profiles protected with JWT structures.</span>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        protectPage();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+        });
+
+        async function loadUserProfile() {
+            const data = await fetchAPI('/auth/profile');
+            if (data.error) {
+                console.error("Profile load failed:", data.msg);
+                return;
+            }
+
+            const user = data.user;
+            const stats = data.stats || {
+                highest_score: 0,
+                average_score: 0.0,
+                total_attempts: 0,
+                win_ratio: 0.0,
+                current_streak: 0
+            };
+
+            // Avatar & Header
+            const avatar = document.getElementById('profile-avatar');
+            avatar.innerText = user.username[0].toUpperCase();
+            avatar.className = `h-24 w-24 rounded-3xl flex items-center justify-center font-extrabold text-white text-3xl shadow-xl ring-4 ring-white/5 ${getBadgeClass(user.badge)}`;
+            
+            document.getElementById('profile-username').innerText = user.username;
+            document.getElementById('profile-joined').innerText = formatDate(user.created_at);
+            
+            const badge = user.badge || 'Bronze';
+            document.getElementById('profile-badge-title').innerText = `${badge} rank`;
+            document.getElementById('profile-badge-label').innerText = badge;
+
+            // Basic metrics
+            document.getElementById('profile-streak-days').innerText = `${user.streak || 0} Days`;
+            document.getElementById('profile-xp-count').innerText = `${user.xp_points} XP`;
+
+            // Performance stats aggregates
+            document.getElementById('profile-quizzes').innerText = stats.total_attempts;
+            document.getElementById('profile-win-ratio').innerText = `${stats.win_ratio.toFixed(1)}%`;
+            document.getElementById('profile-highest-score').innerText = `${stats.highest_score} / 10`;
+            document.getElementById('profile-avg-score').innerText = stats.average_score.toFixed(1);
+        }
+    </script>
+</body>
+</html>

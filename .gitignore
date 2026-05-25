@@ -1,0 +1,29 @@
+# Virtual Environment
+venv/
+ENV/
+.venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment Secrets
+.env
+.env.local
+
+# Databases
+*.db
+*.sqlite
+
+# IDE Settings
+.vscode/
+.idea/
+.project
+.pydevproject
+
+# System Files
+Thumbs.db
+Desktop.ini
+.DS_Store
