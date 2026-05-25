@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from backend.models import db, User, Stats
 
 auth_bp = Blueprint('auth', __name__)
@@ -56,7 +56,7 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """Logs in user and returns a stateless JWT access token."""
+    """Logs in user and sets secure, HttpOnly JWT cookies."""
     data = request.get_json() or {}
     
     username = data.get('username', '').strip()
@@ -69,19 +69,19 @@ def login():
 
     if not user or not user.check_password(password):
         return jsonify({"msg": "Invalid username or password"}), 401
-
-    # Check streak reset on login in case they missed days
-    # Wait, streak is naturally recalculated on quiz submit, but keeping it updated is great!
     
     # Generate token
     # Flask-JWT-Extended stores the identity as a string
     access_token = create_access_token(identity=str(user.id))
 
-    return jsonify({
+    # Build response and attach HttpOnly access cookies
+    response = jsonify({
         "msg": "Login successful",
-        "access_token": access_token,
         "user": user.to_dict()
-    }), 200
+    })
+    set_access_cookies(response, access_token)
+
+    return response, 200
 
 
 @auth_bp.route('/profile', methods=['GET'])
@@ -102,5 +102,7 @@ def get_profile():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    """Logs out user (stateless, simply returns success for client cleanup)."""
-    return jsonify({"msg": "Logged out successfully"}), 200
+    """Logs out user by clearing the secure HttpOnly JWT cookies."""
+    response = jsonify({"msg": "Logged out successfully"})
+    unset_jwt_cookies(response)
+    return response, 200

@@ -7,16 +7,7 @@ const API_BASE = '/api';
 
 // --- Session & Storage Management ---
 const Auth = {
-    saveToken(token) {
-        localStorage.setItem('mcq_jwt_token', token);
-    },
-    
-    getToken() {
-        return localStorage.getItem('mcq_jwt_token');
-    },
-    
     clearSession() {
-        localStorage.removeItem('mcq_jwt_token');
         localStorage.removeItem('mcq_user');
         localStorage.removeItem('current_quiz_questions');
         localStorage.removeItem('last_quiz_results');
@@ -32,33 +23,51 @@ const Auth = {
     },
     
     isAuthenticated() {
-        return !!this.getToken();
+        return !!this.getUser();
     },
 
     logout() {
-        // Stateless API logout call (optional but polite)
-        fetch(`${API_BASE}/auth/logout`, { method: 'POST' }).finally(() => {
+        // Fetch CSRF double-submit token for secure state-changing POST requests
+        const csrfToken = getCookie('csrf_access_token');
+        fetch(`${API_BASE}/auth/logout`, { 
+            method: 'POST', 
+            headers: {
+                'X-CSRF-Token': csrfToken
+            }
+        }).finally(() => {
             this.clearSession();
             window.location.href = 'login.html';
         });
     }
 };
 
+// --- Cookie Extraction Helper ---
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
 // --- Secure API Fetch Wrapper ---
 async function fetchAPI(endpoint, options = {}) {
-    const token = Auth.getToken();
-    
     // Set headers
     const headers = {
         'Content-Type': 'application/json',
         ...(options.headers || {})
     };
     
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    // Auto-inject double-submit CSRF token for state-changing operations
+    const method = (options.method || 'GET').toUpperCase();
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+        const csrfToken = getCookie('csrf_access_token');
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
     }
     
     const config = {
+        credentials: 'same-origin', // Ensure secure cookies are sent with requests
         ...options,
         headers
     };

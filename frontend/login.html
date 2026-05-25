@@ -119,8 +119,7 @@
             if (res.error) {
                 showError(res.msg);
             } else {
-                // Save tokens
-                Auth.saveToken(res.access_token);
+                // Save user profile details
                 Auth.saveUser(res.user);
                 
                 // Redirect

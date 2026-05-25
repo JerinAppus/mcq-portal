@@ -632,14 +632,15 @@
             const formData = new FormData();
             formData.append('file', selectedPdfFile);
 
-            const token = Auth.getToken();
+            const csrfToken = getCookie('csrf_access_token');
 
             try {
                 const response = await fetch('/api/admin/import-pdf', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'X-CSRF-Token': csrfToken
                     },
+                    credentials: 'same-origin', // Ensure secure cookies are sent with requests
                     body: formData
                 });
 
