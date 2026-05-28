@@ -42,10 +42,14 @@ def create_app(config_class=Config):
     return app
 
 def seed_admin():
-    """Seeds default admin user if not present and upgrades old admin accounts."""
+    """Seeds default admin user if configured in environment and upgrades legacy admin accounts."""
     import os
-    admin_user = os.environ.get('ADMIN_USERNAME', 'jerin_admin')
-    admin_pass = os.environ.get('ADMIN_PASSWORD', 'Kikky@2526')
+    admin_user = os.environ.get('ADMIN_USERNAME')
+    admin_pass = os.environ.get('ADMIN_PASSWORD')
+    
+    if not admin_user or not admin_pass:
+        print("Warning: ADMIN_USERNAME or ADMIN_PASSWORD environment variables not set. Skipping admin account setup.")
+        return
     
     # 1. Check for legacy 'admin' user and upgrade it
     legacy_admin = User.query.filter_by(username='admin').first()
