@@ -60,9 +60,12 @@ def get_leaderboard():
         time_filter = 'all-time'
         start_date = None
 
+    import os
+    admin_user = os.environ.get('ADMIN_USERNAME', 'jerin_admin')
+
     if time_filter == 'all-time':
-        # Rank by overall XP
-        top_users = User.query.order_by(User.xp_points.desc(), User.streak.desc()).limit(50).all()
+        # Rank by overall XP, excluding admin
+        top_users = User.query.filter(User.username != admin_user).order_by(User.xp_points.desc(), User.streak.desc()).limit(50).all()
         for idx, u in enumerate(top_users):
             # Calculate accuracy from stats
             acc = u.stats.win_ratio if u.stats else 0.0
@@ -75,13 +78,14 @@ def get_leaderboard():
                 "badge": u.badge
             })
     else:
-        # Join User and Attempt to rank by total score within the period
+        # Join User and Attempt to rank by total score within the period, excluding admin
         results = db.session.query(
             User,
             func.sum(Attempt.score).label('period_score'),
             func.avg(Attempt.accuracy).label('period_accuracy')
         ).join(Attempt, User.id == Attempt.user_id)\
          .filter(Attempt.submitted_at >= start_date)\
+         .filter(User.username != admin_user)\
          .group_by(User.id)\
          .order_by(func.sum(Attempt.score).desc())\
          .limit(50).all()
@@ -98,9 +102,9 @@ def get_leaderboard():
                 "badge": u.badge
             })
 
-        # Fallback: If no activity exists for today/weekly, load all-time so leaderboard is never blank
+        # Fallback: If no activity exists for today/weekly, load all-time so leaderboard is never blank, excluding admin
         if not leaderboard:
-            top_users = User.query.order_by(User.xp_points.desc()).limit(10).all()
+            top_users = User.query.filter(User.username != admin_user).order_by(User.xp_points.desc()).limit(10).all()
             for idx, u in enumerate(top_users):
                 acc = u.stats.win_ratio if u.stats else 0.0
                 leaderboard.append({

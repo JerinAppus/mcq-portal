@@ -173,8 +173,11 @@ def import_questions():
 
 @admin_bp.route('/users', methods=['GET'])
 def get_users_list():
-    """Returns a list of all registered users and their stats."""
-    users = User.query.order_by(User.id.asc()).all()
+    """Returns a list of all registered users (excluding the admin) and their stats."""
+    import os
+    admin_user = os.environ.get('ADMIN_USERNAME', 'jerin_admin')
+    
+    users = User.query.filter(User.username != admin_user).order_by(User.id.asc()).all()
     user_list = []
     
     for u in users:
@@ -194,9 +197,13 @@ def get_users_list():
 
 @admin_bp.route('/attempts', methods=['GET'])
 def get_recent_attempts():
-    """Lists global recent attempts with associated student username."""
+    """Lists global recent attempts (excluding the admin) with associated student username."""
+    import os
+    admin_user = os.environ.get('ADMIN_USERNAME', 'jerin_admin')
+    
     attempts = db.session.query(Attempt, User.username)\
                          .join(User, Attempt.user_id == User.id)\
+                         .filter(User.username != admin_user)\
                          .order_by(Attempt.submitted_at.desc())\
                          .limit(100).all()
                          
