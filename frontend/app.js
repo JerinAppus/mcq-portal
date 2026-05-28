@@ -127,10 +127,13 @@ async function fetchAPI(endpoint, options = {}) {
         if (response.status === 401) {
             console.warn("Session expired or unauthorized. Redirecting to login.");
             Auth.clearSession();
-            if (!window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('register.html')) {
+            const isAuthPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('register.html');
+            if (!isAuthPage) {
                 window.location.href = 'login.html';
+                return { error: true, msg: "Session expired. Please log in again." };
             }
-            return { error: true, msg: "Session expired. Please log in again." };
+            const data = await response.json();
+            return { error: true, msg: data.msg || "Invalid username or password" };
         }
         
         const data = await response.json();
