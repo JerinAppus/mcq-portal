@@ -42,12 +42,30 @@ def create_app(config_class=Config):
     return app
 
 def seed_admin():
-    """Seeds default admin user if not present."""
-    admin_user = User.query.filter_by(username='admin').first()
-    if not admin_user:
+    """Seeds default admin user if not present and upgrades old admin accounts."""
+    import os
+    admin_user = os.environ.get('ADMIN_USERNAME', 'jerin_admin')
+    admin_pass = os.environ.get('ADMIN_PASSWORD', 'Kikky@2526')
+    
+    # 1. Check for legacy 'admin' user and upgrade it
+    legacy_admin = User.query.filter_by(username='admin').first()
+    if legacy_admin:
         try:
-            new_admin = User(username='admin')
-            new_admin.set_password('admin123')
+            legacy_admin.username = admin_user
+            legacy_admin.set_password(admin_pass)
+            db.session.commit()
+            print(f"Successfully upgraded legacy admin account to: {admin_user}")
+            return
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to upgrade legacy admin: {str(e)}")
+            
+    # 2. If no legacy admin, make sure the new admin exists
+    admin_record = User.query.filter_by(username=admin_user).first()
+    if not admin_record:
+        try:
+            new_admin = User(username=admin_user)
+            new_admin.set_password(admin_pass)
             db.session.add(new_admin)
             db.session.flush()
 
@@ -61,10 +79,10 @@ def seed_admin():
             )
             db.session.add(admin_stats)
             db.session.commit()
-            print("Successfully seeded default 'admin' account (Password: admin123).")
+            print(f"Successfully seeded admin account: {admin_user}")
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to seed default admin: {str(e)}")
+            print(f"Failed to seed admin: {str(e)}")
 
 def seed_questions():
     """Seeds initial high-quality MCQ questions if table is empty."""

@@ -14,9 +14,9 @@ def check_admin_privileges():
     try:
         verify_jwt_in_request()
         user_id = get_jwt_identity()
-        user = User.query.get(int(user_id))
-        
-        if not user or user.username != 'admin':
+        import os
+        admin_user = os.environ.get('ADMIN_USERNAME', 'jerin_admin')
+        if not user or user.username != admin_user:
             return jsonify({"msg": "Admin access required. Unauthorized."}), 403
     except Exception as e:
         return jsonify({"msg": "Authentication required. Admin token missing or invalid."}), 401

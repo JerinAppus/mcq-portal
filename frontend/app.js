@@ -169,7 +169,7 @@ function renderNavbar() {
     let navLinks = '';
     let mobileLinks = '';
     if (isLoggedIn) {
-        const isAdmin = user && user.username === 'admin';
+        const isAdmin = user && (user.username === 'admin' || user.username === 'jerin_admin');
         const linksHtml = `
             <a href="dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Dashboard</a>
             <a href="quiz.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Quiz Arena</a>
