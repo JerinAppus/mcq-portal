@@ -1,0 +1,38 @@
+# MCQ Battle Platform Log Rotation Configuration
+# Save this file to /etc/logrotate.d/mcq-portal
+# Set correct permissions: sudo chmod 644 /etc/logrotate.d/mcq-portal
+
+/home/ubuntu/mcq-portal/logs/*.log {
+    # Rotate logs daily
+    daily
+
+    # Keep 14 days of backup logs
+    rotate 14
+
+    # Compress rotated files using gzip
+    compress
+
+    # Delay compression of the previous log file until the next rotation cycle
+    # (helps if some processes are slow to close their logs)
+    delaycompress
+
+    # Do not write an error if the log file is missing
+    missingok
+
+    # Do not rotate the log file if it is empty
+    notifempty
+
+    # Create new blank log file with specific user/group and permissions
+    create 0640 ubuntu ubuntu
+
+    # Use copytruncate to allow Gunicorn/Flask to write logs without interruption.
+    # It copies the current active log file, then truncates it to 0 bytes in-place.
+    # This prevents the need to restart Gunicorn/Flask to refresh the file descriptors.
+    copytruncate
+
+    # Run custom commands after rotation completed
+    postrotate
+        # Log the successful rotation event to system syslog
+        logger -t mcq-logrotate "MCQ Platform logs successfully rotated."
+    endscript
+}
