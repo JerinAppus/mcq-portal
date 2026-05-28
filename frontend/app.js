@@ -205,7 +205,126 @@ function formatDate(isoString) {
     });
 }
 
-// Automatically init navbar if script loaded
+// --- Landing Page Dynamic Profile Controller ---
+async function initLandingProfile() {
+    const loggedInEl = document.getElementById('profile-logged-in');
+    const loggedOutEl = document.getElementById('profile-logged-out');
+    if (!loggedInEl || !loggedOutEl) return;
+
+    if (!Auth.isAuthenticated()) {
+        loggedInEl.classList.add('hidden');
+        loggedOutEl.classList.remove('hidden');
+        return;
+    }
+
+    // Is logged in: Show the profile panel
+    loggedInEl.classList.remove('hidden');
+    loggedOutEl.classList.add('hidden');
+
+    const cachedUser = Auth.getUser();
+    if (cachedUser) {
+        // First-pass instant render using cached data
+        updateProfileFields(cachedUser, { win_ratio: 0.0 });
+    }
+
+    // Asynchronously fetch fresh stats and user details from backend
+    const data = await fetchAPI('/stats/dashboard');
+    if (!data.error && data.user && data.stats) {
+        Auth.saveUser(data.user); // update storage cache
+        updateProfileFields(data.user, data.stats);
+    }
+}
+
+function updateProfileFields(user, stats) {
+    // 1. Avatar letter & colors
+    const avatar = document.getElementById('student-avatar');
+    if (avatar) {
+        avatar.innerText = user.username ? user.username[0].toUpperCase() : 'S';
+        // Dynamically match badge style class
+        const badge = user.badge || 'Bronze';
+        const badgeClass = getBadgeClass(badge);
+        const b = badge.toLowerCase();
+        const textClass = (b === 'platinum' || b === 'gold' || b === 'silver') ? 'text-slate-900' : 'text-slate-100';
+        avatar.className = `h-12 w-12 rounded-xl flex items-center justify-center font-bold ${textClass} text-lg shadow-lg ring-1 ring-white/10 ${badgeClass}`;
+    }
+
+    // 2. Username & Streak
+    const nameEl = document.getElementById('student-name');
+    if (nameEl) nameEl.innerText = user.username || 'Student';
+
+    const streakEl = document.getElementById('student-streak');
+    if (streakEl) streakEl.innerText = `Current Streak: ${user.streak || 0} Days`;
+
+    // 3. Badge Rank Label
+    const badgeEl = document.getElementById('student-badge');
+    if (badgeEl) {
+        const badge = user.badge || 'Bronze';
+        badgeEl.innerText = `🔥 ${badge.toUpperCase()} BADGE`;
+        
+        // Remove existing class properties
+        badgeEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold border';
+        if (badge.toLowerCase() === 'platinum') {
+            badgeEl.classList.add('bg-slate-300/20', 'text-slate-200', 'border-slate-300/30');
+        } else if (badge.toLowerCase() === 'gold') {
+            badgeEl.classList.add('bg-yellow-500/20', 'text-yellow-400', 'border-yellow-500/30');
+        } else if (badge.toLowerCase() === 'silver') {
+            badgeEl.classList.add('bg-slate-400/20', 'text-slate-300', 'border-slate-400/30');
+        } else {
+            badgeEl.classList.add('bg-amber-700/20', 'text-amber-500', 'border-amber-700/30'); // Bronze
+        }
+    }
+
+    // 4. Quick stats (XP & Accuracy)
+    const scoreEl = document.getElementById('student-score');
+    if (scoreEl) scoreEl.innerText = `${user.xp_points || 0} XP`;
+
+    const accuracyEl = document.getElementById('student-accuracy');
+    if (accuracyEl) {
+        const winRatio = stats && stats.win_ratio !== undefined ? stats.win_ratio : 0.0;
+        accuracyEl.innerText = `${winRatio.toFixed(1)}%`;
+    }
+
+    // 5. Progress to next milestone
+    const nextLevelEl = document.getElementById('student-next-level');
+    const xpProgressEl = document.getElementById('student-xp-progress');
+    const progressBar = document.getElementById('student-progress-bar');
+    
+    if (nextLevelEl && xpProgressEl && progressBar) {
+        const badge = user.badge || 'Bronze';
+        let nextBadge = 'Silver';
+        let nextMilestone = 100;
+        let currentBase = 0;
+
+        if (badge.toLowerCase() === 'bronze') {
+            nextBadge = 'Silver';
+            nextMilestone = 100;
+            currentBase = 0;
+        } else if (badge.toLowerCase() === 'silver') {
+            nextBadge = 'Gold';
+            nextMilestone = 500;
+            currentBase = 100;
+        } else if (badge.toLowerCase() === 'gold') {
+            nextBadge = 'Platinum';
+            nextMilestone = 1500;
+            currentBase = 500;
+        } else if (badge.toLowerCase() === 'platinum') {
+            nextBadge = 'Grandmaster';
+            nextMilestone = 5000;
+            currentBase = 1500;
+        }
+
+        const progressRange = nextMilestone - currentBase;
+        const userProgressVal = (user.xp_points || 0) - currentBase;
+        const progressPct = Math.min(100, Math.max(0, (userProgressVal / progressRange) * 100));
+
+        nextLevelEl.innerText = `Next Level (${nextBadge})`;
+        xpProgressEl.innerText = `${user.xp_points || 0} / ${nextMilestone} XP`;
+        progressBar.style.width = `${progressPct}%`;
+    }
+}
+
+// Automatically init navbar and landing page elements if script loaded
 document.addEventListener('DOMContentLoaded', () => {
     renderNavbar();
+    initLandingProfile();
 });
