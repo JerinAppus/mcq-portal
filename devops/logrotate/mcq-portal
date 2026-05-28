@@ -3,6 +3,9 @@
 # Set correct permissions: sudo chmod 644 /etc/logrotate.d/mcq-portal
 
 /home/ubuntu/mcq-portal/logs/*.log {
+    # Run rotation under the ubuntu user and group to avoid directory security check failures
+    su ubuntu ubuntu
+
     # Rotate logs daily
     daily
 
@@ -13,7 +16,6 @@
     compress
 
     # Delay compression of the previous log file until the next rotation cycle
-    # (helps if some processes are slow to close their logs)
     delaycompress
 
     # Do not write an error if the log file is missing
@@ -25,9 +27,7 @@
     # Create new blank log file with specific user/group and permissions
     create 0640 ubuntu ubuntu
 
-    # Use copytruncate to allow Gunicorn/Flask to write logs without interruption.
-    # It copies the current active log file, then truncates it to 0 bytes in-place.
-    # This prevents the need to restart Gunicorn/Flask to refresh the file descriptors.
+    # Use copytruncate to allow Gunicorn/Flask to write logs without interruption
     copytruncate
 
     # Run custom commands after rotation completed

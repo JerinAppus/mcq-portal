@@ -111,6 +111,39 @@ elif [[ "$DB_URL" =~ ^postgres ]]; then
         log_msg "ERROR" "PostgreSQL pg_dump failed! Check Nginx/App logs."
         exit 1
     fi
+
+elif [[ "$DB_URL" =~ ^mysql ]]; then
+    log_msg "INFO" "MySQL database detected. Running mysqldump..."
+    
+    if ! command -v mysqldump &> /dev/null; then
+        log_msg "ERROR" "mysqldump utility is not installed! Cannot backup MySQL database."
+        exit 1
+    fi
+    
+    # Parse connection string: mysql+pymysql://username:password@host:port/database
+    CLEAN_URL=$(echo "$DB_URL" | sed -E 's|^mysql(\+pymysql)?://||')
+    USERPASS=$(echo "$CLEAN_URL" | cut -d'@' -f1)
+    HOSTPORT_DB=$(echo "$CLEAN_URL" | cut -d'@' -f2)
+    
+    DB_USER=$(echo "$USERPASS" | cut -d':' -f1)
+    DB_PASS=$(echo "$USERPASS" | cut -d':' -f2)
+    
+    HOSTPORT=$(echo "$HOSTPORT_DB" | cut -d'/' -f1)
+    DB_NAME=$(echo "$HOSTPORT_DB" | cut -d'/' -f2 | cut -d'?' -f1)
+    
+    DB_HOST=$(echo "$HOSTPORT" | cut -d':' -f1)
+    DB_PORT=$(echo "$HOSTPORT" | cut -d':' -f2)
+    DB_PORT=${DB_PORT:-3306}
+    
+    # Execute mysqldump
+    mysqldump -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$BACKUP_PATH/database_backup.sql" 2>> "$LOG_FILE"
+    
+    if [ $? -eq 0 ]; then
+        log_msg "INFO" "MySQL database dumped successfully."
+    else
+        log_msg "ERROR" "MySQL mysqldump failed!"
+        exit 1
+    fi
 else
     log_msg "WARNING" "Unknown database engine. Skipping database backup."
 fi
