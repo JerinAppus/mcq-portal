@@ -119,19 +119,35 @@ function renderNavbar() {
     const user = Auth.getUser();
 
     let navLinks = '';
+    let mobileLinks = '';
     if (isLoggedIn) {
         const isAdmin = user && user.username === 'admin';
-        navLinks = `
+        const linksHtml = `
             <a href="dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Dashboard</a>
             <a href="quiz.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Quiz Arena</a>
             <a href="leaderboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Leaderboard</a>
             <a href="profile.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Profile</a>
             ${isAdmin ? `<a href="admin.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-purple-400 transition-colors text-purple-300 border border-purple-500/20 bg-purple-500/5">Admin</a>` : ''}
         `;
+        navLinks = linksHtml;
+        
+        mobileLinks = `
+            <a href="dashboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-chart-pie text-blue-500 text-base"></i> Dashboard</a>
+            <a href="quiz.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-gamepad text-indigo-500 text-base"></i> Quiz Arena</a>
+            <a href="leaderboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-trophy text-yellow-500 text-base"></i> Leaderboard</a>
+            <a href="profile.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-user-circle text-emerald-500 text-base"></i> Profile</a>
+            ${isAdmin ? `<a href="admin.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-purple-300 hover:text-purple-400 hover:bg-purple-500/5 border border-purple-500/10 bg-purple-500/5 transition-all flex items-center gap-3"><i class="fas fa-user-shield text-base"></i> Admin Control</a>` : ''}
+        `;
     } else {
-        navLinks = `
+        const linksHtml = `
             <a href="index.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Home</a>
             <a href="leaderboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Leaderboard</a>
+        `;
+        navLinks = linksHtml;
+
+        mobileLinks = `
+            <a href="index.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-home text-blue-500 text-base"></i> Home</a>
+            <a href="leaderboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-trophy text-yellow-500 text-base"></i> Leaderboard</a>
         `;
     }
 
@@ -157,6 +173,34 @@ function renderNavbar() {
             </div>
           `;
 
+    const mobileAuthSection = isLoggedIn && user
+        ? `
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-3 px-2">
+                    <div class="h-10 w-10 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-sm ring-2 ring-white/10">
+                        ${user.username[0].toUpperCase()}
+                    </div>
+                    <div>
+                        <span class="text-sm font-bold text-blue-400 block">${user.username}</span>
+                        <span class="text-xs text-gray-400">Streak: 🔥 ${user.streak || 0} Days</span>
+                    </div>
+                </div>
+                <button onclick="Auth.logout()" class="w-full py-2.5 rounded-xl font-bold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-all cursor-pointer text-center text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-sign-out-alt text-xs"></i> Logout
+                </button>
+            </div>
+          `
+        : `
+            <div class="grid grid-cols-2 gap-3">
+                <a href="login.html" class="py-2.5 rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-all text-center text-sm cursor-pointer">
+                    Login
+                </a>
+                <a href="register.html" class="py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 transition-all text-center text-sm cursor-pointer">
+                    Register
+                </a>
+            </div>
+          `;
+
     navbarContainer.innerHTML = `
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -171,18 +215,49 @@ function renderNavbar() {
                         </span>
                     </a>
                 </div>
-                <!-- Links -->
+                <!-- Links (Desktop) -->
                 <nav class="hidden md:flex space-x-2 text-gray-300">
                     ${navLinks}
                 </nav>
-                <!-- Auth / User Actions -->
-                <div>
+                <!-- Auth / Actions (Desktop) -->
+                <div class="hidden md:block">
                     ${authSection}
                 </div>
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 border border-white/10 transition-all cursor-pointer focus:outline-none">
+                        <i class="fas fa-bars text-lg" id="mobile-menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Panel -->
+        <div id="mobile-nav-panel" class="hidden md:hidden border-t border-white/5 bg-slate-950/90 backdrop-blur-xl px-4 py-4 space-y-4 shadow-lg">
+            <nav class="flex flex-col space-y-1.5 text-gray-300">
+                ${mobileLinks}
+            </nav>
+            <div class="pt-4 border-t border-white/5">
+                ${mobileAuthSection}
             </div>
         </div>
     `;
 }
+
+// Global mobile menu toggler helper
+window.toggleMobileMenu = function() {
+    const mobilePanel = document.getElementById('mobile-nav-panel');
+    const menuIcon = document.getElementById('mobile-menu-icon');
+    if (!mobilePanel || !menuIcon) return;
+
+    const isHidden = mobilePanel.classList.contains('hidden');
+    if (isHidden) {
+        mobilePanel.classList.remove('hidden');
+        menuIcon.className = 'fas fa-xmark text-lg';
+    } else {
+        mobilePanel.classList.add('hidden');
+        menuIcon.className = 'fas fa-bars text-lg';
+    }
+};
 
 // --- Dynamic helper utilities ---
 function getBadgeClass(badge) {
