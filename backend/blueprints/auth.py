@@ -1,10 +1,44 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from backend.models import db, User, Stats
+import time
+from functools import wraps
 
 auth_bp = Blueprint('auth', __name__)
 
+# Lightweight in-memory rate-limiter for brute-force attack prevention
+_rate_tracker = {}
+
+def rate_limit(limit=5, period=60):
+    """
+    Lightweight, custom API Rate Limiting decorator.
+    Restricts request frequency per IP address to prevent brute-force attacks.
+    """
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            ip = request.remote_addr
+            now = time.time()
+            
+            if ip not in _rate_tracker:
+                _rate_tracker[ip] = []
+                
+            # Filter timestamps to keep only those within the active tracking window
+            _rate_tracker[ip] = [t for t in _rate_tracker[ip] if now - t < period]
+            
+            if len(_rate_tracker[ip]) >= limit:
+                return jsonify({
+                    "msg": "Too many requests. Please wait a moment before trying again."
+                }), 429
+                
+            _rate_tracker[ip].append(now)
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+
 @auth_bp.route('/register', methods=['POST'])
+@rate_limit(limit=10, period=60)
 def register():
     """Registers a new user, hashes password, and creates standard stats."""
     data = request.get_json() or {}
@@ -55,6 +89,7 @@ def register():
 
 
 @auth_bp.route('/login', methods=['POST'])
+@rate_limit(limit=5, period=60)
 def login():
     """Logs in user and sets secure, HttpOnly JWT cookies."""
     data = request.get_json() or {}

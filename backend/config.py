@@ -22,7 +22,7 @@ class Config:
     
     # Cookie-based secure JWT with CSRF Double-Submit token protection
     JWT_TOKEN_LOCATION = ["cookies"]
-    JWT_COOKIE_SECURE = False  # Set to True in production (requires HTTPS)
+    JWT_COOKIE_SECURE = True  # Enabled for production HTTPS connection
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_CSRF_METHODS = ["POST", "PUT", "PATCH", "DELETE"]  # GET requests are exempt
     JWT_CSRF_IN_HEADERS = True
