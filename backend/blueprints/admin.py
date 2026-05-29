@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from backend.models import db, MCQ, User, Attempt, Stats
 
@@ -65,7 +65,8 @@ def create_question():
         return jsonify({"msg": "MCQ added successfully", "mcq": new_q.to_dict(include_correct=True)}), 210
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": f"Failed to add question: {str(e)}"}), 500
+        current_app.logger.error(f"Failed to add question: {str(e)}")
+        return jsonify({"msg": "Failed to add question"}), 500
 
 
 @admin_bp.route('/mcqs/<int:qid>', methods=['PUT'])
@@ -95,7 +96,8 @@ def edit_question(qid):
         return jsonify({"msg": "MCQ updated successfully", "mcq": mcq.to_dict(include_correct=True)}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": f"Failed to update MCQ: {str(e)}"}), 500
+        current_app.logger.error(f"Failed to update MCQ: {str(e)}")
+        return jsonify({"msg": "Failed to update MCQ"}), 500
 
 
 @admin_bp.route('/mcqs/<int:qid>', methods=['DELETE'])
@@ -111,7 +113,8 @@ def delete_question(qid):
         return jsonify({"msg": "MCQ deleted successfully"}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": f"Failed to delete MCQ: {str(e)}"}), 500
+        current_app.logger.error(f"Failed to delete MCQ: {str(e)}")
+        return jsonify({"msg": "Failed to delete MCQ"}), 500
 
 
 @admin_bp.route('/import', methods=['POST'])
@@ -156,14 +159,16 @@ def import_questions():
             db.session.add(new_q)
             imported_count += 1
         except Exception as e:
-            errors.append(f"Row {idx+1}: Database error: {str(e)}")
+            current_app.logger.error(f"Database error during question import at row {idx+1}: {str(e)}")
+            errors.append(f"Row {idx+1}: Database error occurred.")
 
     if imported_count > 0:
         try:
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            return jsonify({"msg": f"Failed to save imported questions: {str(e)}"}), 500
+            current_app.logger.error(f"Failed to save imported questions: {str(e)}")
+            return jsonify({"msg": "Failed to save imported questions"}), 500
 
     return jsonify({
         "msg": f"Successfully imported {imported_count} questions.",
@@ -413,4 +418,5 @@ def import_pdf_questions():
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"msg": f"Failed to process PDF: {str(e)}"}), 500
+        current_app.logger.error(f"Failed to process PDF: {str(e)}")
+        return jsonify({"msg": "Failed to process PDF"}), 500
